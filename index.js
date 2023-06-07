@@ -29,7 +29,6 @@ function baseMenu()
                 "Add Role",
                 "View All Departments",
                 "Add Department",
-                "Quit"
             ],
         }
     ])
@@ -42,11 +41,27 @@ function baseMenu()
              LEFT JOIN department d ON r.department_id = d.id
              LEFT JOIN employee m ON m.employee_id = e.manager_id;`,
              function (err, results) {
-                console.clear();
                 console.log('\n');
                 console.table(results);
                 baseMenu();
              });
+             break;
+            case "View All Departments":
+            db.query('SELECT id, department_name FROM department', function (err, results) {
+                console.log('\n');
+                console.table(results);
+                baseMenu();
+            });
+            break;
+            case "View All Roles":
+            db.query(`SELECT r.title, r.id, d.department_name AS department, r.salary FROM role r
+                LEFT JOIN department d ON d.id = r.department_id;`,
+                function (err, results) {
+                console.log('\n');
+                console.table(results);
+                baseMenu();
+            });
+            break;
         }
     });
 }
