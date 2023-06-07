@@ -5,29 +5,26 @@ USE employees_db;
 
 CREATE TABLE department (
 id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-VARCHAR(30) name,
+name VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE role (
 id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-VARCHAR(30) title
-DECIMAL salary
+title VARCHAR(30),
+salary DECIMAL,
 department_id INT,
 FOREIGN KEY (department_id)
 REFERENCES department(id)
-ON DELETE SET NULL,
+ON DELETE SET NULL
 );
 
 CREATE TABLE employee (
-INT id
-VARCHAR(30) first_name
-VARCHAR(30) last_name
+id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+first_name VARCHAR(30) NOT NULL,
+last_name VARCHAR(30) NOT NULL,
 role_id INT,
 FOREIGN KEY (role_id)
 REFERENCES role(id)
 ON DELETE SET NULL,
-INT manager_id
-FOREIGN KEY (manager_id)
-REFERENCES employee(id)
-ON DELETE SET NULL,
+manager_id INT REFERENCES employee(id) ON DELETE SET NULL
 );
