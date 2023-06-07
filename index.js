@@ -10,10 +10,10 @@ const db = mysql.createConnection(
     },
   );
 
-//baseMenu();
+baseMenu();
 
-//function baseMenu()
-//{
+function baseMenu()
+{
     inquirer
     .prompt([
         {
@@ -23,29 +23,30 @@ const db = mysql.createConnection(
             choices: 
             [
                 "View All Employees",
-                "View All Employees by Department",
-                "View All Employees by Manager", 
                 "Add Employee", 
-                "Remove Employee", 
                 "Update Employee Role", 
-                "Update Employee Manager",
                 "View All Roles",
                 "Add Role",
-                "Remove Role",
                 "View All Departments",
                 "Add Department",
-                "Remove Department",
-                "View Total Utilized Budget by Department",
                 "Quit"
             ],
         }
     ])
     .then((data) => {
-        switch(data) {
+        switch(data.menu) {
             case "View All Employees":
-             db.query('SELECT * FROM employees', function (err, results) {
-                console.log(results);
-             })
+             db.query(`SELECT e.employee_id, e.first_name, e.last_name, r.title, r.salary, d.department_name, CONCAT(m.first_name, ' ', m.last_name) AS manager
+             FROM employee e
+             LEFT JOIN role r ON e.role_id = r.id
+             LEFT JOIN department d ON r.department_id = d.id
+             LEFT JOIN employee m ON m.employee_id = e.manager_id;`,
+             function (err, results) {
+                console.clear();
+                console.log('\n');
+                console.table(results);
+                baseMenu();
+             });
         }
     });
-//}
+}
