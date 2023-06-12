@@ -6,8 +6,11 @@ var employeeIds = [];
 var managers = [];
 var roles = [];
 var roleIds = [];
+var departments = [];
+var departmentIds = [];
 var roleId;
 var managerId;
+var departmentId;
 
 
 const db = mysql.createConnection(
@@ -55,8 +58,7 @@ function baseMenu()
                 baseMenu();
              });
              break;
-             case "Update Employee Role":
-                
+             case "Update Employee Role":       
             //get the employee names and ids from the database, ask the user to pick an employee by name
              db.query(`SELECT first_name, last_name, employee_id FROM employee;`, function (err, results) {
                 console.log('\n');
@@ -147,6 +149,7 @@ function baseMenu()
                     }
                 });
                 managers.push("No Manager");
+                employeeIds.push(0);
                 inquirer
                 .prompt([
                     {
@@ -185,6 +188,54 @@ function baseMenu()
                     baseMenu();
                 });
             break;
+            case "Add Role":
+                db.query("SELECT * FROM department;", function (err, results) {
+                    for(var i = 0; i < results.length; i ++) {
+                        departmentIds[i] = results[i].id;
+                        departments[i] = results[i].department_name;
+                    };
+                });
+                inquirer
+                .prompt([
+                    {
+                        type: 'input',
+                        name: 'title',
+                        message: 'What is the title of the role you would like to add?',
+                    },
+                    {
+                        type: 'input',
+                        name: 'salary',
+                        message: "What is the salary for this role? Input a number value with no punctuation.",
+                    },
+                    {
+                        type: 'list',
+                        name: 'department',
+                        message: 'Which department is this role a part of?',
+                        choices: departments,
+                    }
+                ])
+                .then((data) => {
+                        for(var i = 0; i < departments.length; i++) {
+                            if(departments[i] === data.department) departmentId = departmentIds[i];
+                        }
+                        db.query(`INSERT INTO role (title, salary, department_id) VALUES ("${data.title}", ${data.salary}, ${departmentId});`);
+                        baseMenu();
+                });
+                break;
+                case "Add Department":
+                    inquirer
+                    .prompt([
+                        {
+                            type: 'input',
+                            name: 'departmentName',
+                            message: 'What is the name of the department?',
+
+                        }
+                    ])
+                    .then((data) => {
+                        db.query(`INSERT INTO department (department_name) VALUES ("${data.departmentName}");`);
+                        baseMenu();
+                    });
         }
     });
 }
