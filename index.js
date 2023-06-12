@@ -20,7 +20,7 @@ const db = mysql.createConnection(
       password: 'password',
       database: 'employees_db'
     },
-  );
+);
 
 baseMenu();
 
