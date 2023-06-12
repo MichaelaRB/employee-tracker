@@ -3,9 +3,11 @@ const mysql = require('mysql2');
 
 var employees = [];
 var employeeIds = [];
+var managers = [];
 var roles = [];
 var roleIds = [];
 var roleId;
+var managerId;
 
 
 const db = mysql.createConnection(
@@ -79,6 +81,7 @@ function baseMenu()
                             employeeId = employeeIds[i];
                         }
                     }
+                    //gets role information then prompts the user to select the employee's new role
                     db.query('SELECT id, title FROM role;', function (err, results) {
 
                         for(var i = 0; i < results.length; i++) {
@@ -103,7 +106,6 @@ function baseMenu()
                                 roleId = roleIds[i];
                             }
                         }
-                        console.log(roleId);
                         db.query(`UPDATE employee SET role_id = ${roleId}, manager_id = 0 WHERE employee_id = ${employeeId};`);
                         baseMenu();
                     })
@@ -129,6 +131,59 @@ function baseMenu()
                 console.table(results);
                 baseMenu();
             });
+            break;
+            case "Add Employee":
+                db.query("select title, id from role", function(err, results){
+                    for(var i = 0; i < results.length; i++)
+                    {
+                        roles[i] = results[i].title;
+                        roleIds[i] = results[i].id;
+                    }
+                });
+                db.query("select first_name, last_name, employee_id FROM employee", function(err, results) {
+                    for(var i = 0; i < results.length; i ++) {
+                        managers[i] = results[i].first_name + " " + results[i].last_name;
+                        employeeIds[i] = results[i].employee_id;
+                    }
+                });
+                managers.push("No Manager");
+                inquirer
+                .prompt([
+                    {
+                        type: 'input',
+                        name: 'firstName',
+                        message: 'What is the first name of the employee you would like to add?',
+                    },
+                    {
+                        type: 'input',
+                        name: 'lastName',
+                        message: 'What is the last name of the employee you would like to add?',
+                    },
+                    {
+                        type: 'list',
+                        name: 'title',
+                        message: "What is this employee's job title?",
+                        choices: roles,
+                    },
+                    {
+                        type: 'list',
+                        name: 'manager',
+                        message: "Who is this employee's manager?",
+                        choices: managers,
+                    }
+                ])
+                .then((data) => {
+                    for(var i = 0; i < managers.length; i++)
+                    {
+                        if(data.manager === managers[i]) managerId = employeeIds[i];
+                    }
+                    for(var i = 0; i < roles.length; i++)
+                    {
+                        if(data.title === roles[i]) roleId = roleIds[i];
+                    }
+                    db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${data.firstName}", "${data.lastName}", ${roleId}, ${managerId});`);
+                    baseMenu();
+                });
             break;
         }
     });
