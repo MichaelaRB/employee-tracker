@@ -147,9 +147,9 @@ function baseMenu()
                         managers[i] = results[i].first_name + " " + results[i].last_name;
                         employeeIds[i] = results[i].employee_id;
                     }
+                    managers.push("No Manager");
+                    employeeIds.push(0);
                 });
-                managers.push("No Manager");
-                employeeIds.push(0);
                 inquirer
                 .prompt([
                     {
